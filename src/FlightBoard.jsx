@@ -1,59 +1,34 @@
-import { useEffect, useState } from "react";
-import { mockFlights } from "./flights";
+import flights from "./flights";
 
-export default function FlightBoard() {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const interval = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const formatTime = (date) =>
-    date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-  const statusColor = {
-    "On Time": "text-green-400",
-    "Delayed": "text-yellow-400",
-    "Boarding": "text-blue-400",
-  };
-
-  const columns = ["Flight", "Airline", "From", "To", "Time", "Status"];
-
+function FlightBoard() {
   return (
-    <div className="w-full max-w-5xl mx-auto mt-10 px-4">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-extrabold tracking-widest text-white">ALLFLIGHTS</h1>
-        <div className="text-white text-xl font-mono">{formatTime(time)}</div>
-      </div>
-
-      <div className="rounded-xl shadow-xl border border-gray-700 bg-gray-950">
-        {/* Header row */}
-        <div className="grid grid-cols-6 gap-4 bg-gray-800 text-gray-400 uppercase text-sm px-4 py-3">
-          {columns.map((col) => (
-            <div key={col}>{col}</div>
+    <div className="overflow-x-auto">
+      <table className="w-full table-fixed text-yellow-400 text-left">
+        <thead>
+          <tr className="uppercase text-sm border-b border-yellow-600">
+            <th className="w-1/6 py-2">Flight</th>
+            <th className="w-1/6 py-2">Airline</th>
+            <th className="w-1/6 py-2">From</th>
+            <th className="w-1/6 py-2">To</th>
+            <th className="w-1/6 py-2">Time</th>
+            <th className="w-1/6 py-2">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {flights.map((flight, index) => (
+            <tr key={index} className="border-b border-yellow-800">
+              <td className="py-2">{flight.flight}</td>
+              <td className="py-2">{flight.airline}</td>
+              <td className="py-2">{flight.from}</td>
+              <td className="py-2">{flight.to}</td>
+              <td className="py-2">{flight.time}</td>
+              <td className="py-2">{flight.status}</td>
+            </tr>
           ))}
-        </div>
-
-        {/* Flight rows */}
-        <div className="divide-y divide-gray-700">
-          {mockFlights.map((flight) => (
-            <div
-              key={flight.id}
-              className="grid grid-cols-6 gap-4 px-4 py-3 text-white text-sm font-mono hover:bg-gray-900 transition"
-            >
-              <div className="flip-cell">{flight.id}</div>
-              <div className="flip-cell">{flight.airline}</div>
-              <div className="flip-cell">{flight.origin}</div>
-              <div className="flip-cell">{flight.destination}</div>
-              <div className="flip-cell">{flight.scheduled}</div>
-              <div className={`font-bold flip-cell ${statusColor[flight.status]}`}>
-                {flight.status}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
   );
 }
+
+export default FlightBoard;

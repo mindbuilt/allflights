@@ -1,27 +1,36 @@
-// src/flights.js
-export const mockFlights = [
+const flights = [
   {
-    id: "QF400",
+    flight: "QF123",
     airline: "Qantas",
-    origin: "MEL",
-    destination: "SYD",
-    scheduled: "07:00",
+    from: "SYD",
+    to: "MEL",
+    time: "08:30",
     status: "On Time",
   },
   {
-    id: "VA302",
-    airline: "Virgin Australia",
-    origin: "BNE",
-    destination: "SYD",
-    scheduled: "07:30",
+    flight: "VA456",
+    airline: "Virgin",
+    from: "MEL",
+    to: "BNE",
+    time: "09:15",
     status: "Delayed",
   },
   {
-    id: "JQ515",
+    flight: "JQ789",
     airline: "Jetstar",
-    origin: "OOL",
-    destination: "SYD",
-    scheduled: "08:00",
+    from: "BNE",
+    to: "CNS",
+    time: "10:00",
     status: "Boarding",
   },
+  {
+    flight: "NZ321",
+    airline: "Air NZ",
+    from: "SYD",
+    to: "AKL",
+    time: "11:20",
+    status: "Departed",
+  },
 ];
+
+export default flights;
