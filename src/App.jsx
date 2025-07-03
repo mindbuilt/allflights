@@ -1,61 +1,50 @@
-import React, { useState, useEffect } from "react";
+// /src/App.jsx
+
+import { useState, useEffect } from "react";
 import FlightBoard from "./FlightBoard";
 
-const App = () => {
+export default function App() {
   const [flights, setFlights] = useState([]);
-  const [flightType, setFlightType] = useState("arrivals"); // or "departures"
-  const [loading, setLoading] = useState(true);
-  const AIRPORT_CODE = "YSSY"; // Sydney
+  const [flightType, setFlightType] = useState("arrivals");
+
+  const fetchFlights = async () => {
+    try {
+      const res = await fetch(`/api/flights?airport=YSSY&type=${flightType}`);
+      const data = await res.json();
+      setFlights(data.flights || []);
+    } catch (err) {
+      console.error("Error fetching flights:", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchFlights = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/flights?airport=${AIRPORT_CODE}&type=${flightType}`);
-        const data = await res.json();
-        setFlights(data.flights || []);
-      } catch (error) {
-        console.error("Error fetching flights:", error);
-        setFlights([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchFlights();
   }, [flightType]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <header className="text-center mb-6">
-        <h1 className="text-3xl font-bold">🛫 AllFlights Sydney</h1>
-        <div className="mt-4">
+    <div className="min-h-screen bg-black text-white font-mono p-4">
+      <header className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">AllFlights — Sydney</h1>
+        <div className="space-x-2">
           <button
-            className={`mr-2 px-4 py-2 rounded ${
-              flightType === "arrivals" ? "bg-white text-black" : "bg-gray-700"
-            }`}
             onClick={() => setFlightType("arrivals")}
+            className={`px-3 py-1 rounded ${
+              flightType === "arrivals" ? "bg-white text-black" : "bg-gray-800"
+            }`}
           >
             Arrivals
           </button>
           <button
-            className={`px-4 py-2 rounded ${
-              flightType === "departures" ? "bg-white text-black" : "bg-gray-700"
-            }`}
             onClick={() => setFlightType("departures")}
+            className={`px-3 py-1 rounded ${
+              flightType === "departures" ? "bg-white text-black" : "bg-gray-800"
+            }`}
           >
             Departures
           </button>
         </div>
       </header>
-
-      {loading ? (
-        <div className="text-center text-gray-400">Loading {flightType}...</div>
-      ) : (
-        <FlightBoard flights={flights} type={flightType} />
-      )}
+      <FlightBoard flights={flights} type={flightType} />
     </div>
   );
-};
-
-export default App;
+}
