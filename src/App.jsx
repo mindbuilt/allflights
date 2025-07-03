@@ -21,13 +21,25 @@ export default function App() {
         ? flight.estimated_on || flight.scheduled_on
         : flight.estimated_out || flight.scheduled_out;
 
-    if (!timeStr) return false;
+ if (!timeStr) return false;
 
-    const flightTime = DateTime.fromISO(timeStr).setZone("Australia/Sydney");
+const flightTime = DateTime.fromISO(timeStr).setZone("Australia/Sydney");
 
-    return (
-      flightTime >= threeHoursBefore && flightTime <= threeHoursAfter
-    );
+console.log({
+  ident: flight.ident,
+  flightTime: flightTime.toFormat("HH:mm"),
+  status: flight.status,
+  scheduled_out: flight.scheduled_out,
+  scheduled_on: flight.scheduled_on,
+  estimated_out: flight.estimated_out,
+  estimated_on: flight.estimated_on,
+  isWithinRange:
+    flightTime >= threeHoursBefore && flightTime <= threeHoursAfter,
+});
+
+return (
+  flightTime >= threeHoursBefore && flightTime <= threeHoursAfter
+);
   });
 };
 
