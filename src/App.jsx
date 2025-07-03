@@ -11,40 +11,31 @@ export default function App() {
   const [error, setError] = useState(false);
   const airport = "YSSY";
 
-  const filterFlights = (rawFlights) => {
+const filterFlights = (rawFlights) => {
   const nowSydney = DateTime.now().setZone("Australia/Sydney");
   const threeHoursBefore = nowSydney.minus({ hours: 3 });
   const threeHoursAfter = nowSydney.plus({ hours: 3 });
 
   return rawFlights.filter((flight) => {
     const timeStr =
-  viewType === "arrivals"
-    ? flight.actual_in || flight.estimated_in || flight.scheduled_in
-    : flight.actual_out || flight.estimated_out || flight.scheduled_out;
+      viewType === "arrivals"
+        ? flight.actual_in || flight.estimated_in || flight.scheduled_in
+        : flight.actual_out || flight.estimated_out || flight.scheduled_out;
 
- if (!timeStr) return false;
+    if (!timeStr) return false;
 
-const flightTime = DateTime.fromISO(timeStr).setZone("Australia/Sydney");
+    const flightTime = DateTime.fromISO(timeStr, { zone: "utc" }).setZone("Australia/Sydney");
 
-console.log({
-  ident: flight.ident,
-  flightTime: flightTime.toFormat("HH:mm"),
-  status: flight.status,
-  scheduled_out: flight.scheduled_out,
-  scheduled_on: flight.scheduled_on,
-  estimated_out: flight.estimated_out,
-  estimated_on: flight.estimated_on,
-  isWithinRange:
-    flightTime >= threeHoursBefore && flightTime <= threeHoursAfter,
-});
+    // DEBUG LOG
+    console.log({
+      ident: flight.ident,
+      time: flightTime.toISO(),
+      withinRange: flightTime >= threeHoursBefore && flightTime <= threeHoursAfter,
+    });
 
-return (
-  flightTime >= threeHoursBefore && flightTime <= threeHoursAfter
-);
+    return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
   });
 };
-
-
 
   const fetchFlights = async () => {
     setLoading(true);
