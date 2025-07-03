@@ -87,10 +87,22 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
   );
 }
 
+import FlipNumbers from "react-flip-numbers";
+
 function SplitFlapCell({ children }) {
+  const text = children?.toString() || "—";
   return (
     <td className="px-2 py-1 text-center border border-yellow-700 bg-black rounded-sm shadow-inner tracking-wide">
-      {children || "—"}
+      <FlipNumbers
+        height={24}
+        width={16}
+        number={text}
+        color="yellow"
+        background="black"
+        perspective={500}
+        play
+        nonNumberCharacters={true}
+      />
     </td>
   );
 }
