@@ -1,28 +1,26 @@
 export default async function handler(req, res) {
-  const { airport = "YSSY", type = "all" } = req.query;
+  const { airport = "YSSY", type = "departures" } = req.query;
 
-  const types = {
-    departures: "departures",
-    arrivals: "arrivals",
-  };
-
-  const urlBase = "https://aeroapi.flightaware.com/aeroapi/flights/airport";
-  const fetchType = type === "all" ? "departures" : types[type] || "departures";
+  const validTypes = ["departures", "arrivals"];
+  const selectedType = validTypes.includes(type) ? type : "departures";
 
   const query = new URLSearchParams({
     airport_code: airport,
-    type: fetchType, // ✅ must be "departures" or "arrivals"
+    type: selectedType, // ✅ safe value
     howMany: "20",
-    offset_number: "0",
+    offset: "0",
   });
 
   try {
-    const response = await fetch(`${urlBase}?${query.toString()}`, {
-      headers: {
-        "x-apikey": process.env.AEROAPI_KEY,
-        Accept: "application/json",
-      },
-    });
+    const response = await fetch(
+      `https://aeroapi.flightaware.com/aeroapi/flights/airport?${query.toString()}`,
+      {
+        headers: {
+          "x-apikey": process.env.AEROAPI_KEY,
+          Accept: "application/json",
+        },
+      }
+    );
 
     const text = await response.text();
     console.log("API raw response:", text);
