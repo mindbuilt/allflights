@@ -10,8 +10,12 @@ export default function App() {
 
   const filterFlights = (rawFlights) => {
     const now = new Date();
-    const threeHoursBefore = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-    const threeHoursAfter = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+    const sydneyNow = new Date(
+      now.toLocaleString("en-US", { timeZone: "Australia/Sydney" })
+    );
+
+    const threeHoursBefore = new Date(sydneyNow.getTime() - 3 * 60 * 60 * 1000);
+    const threeHoursAfter = new Date(sydneyNow.getTime() + 3 * 60 * 60 * 1000);
 
     return rawFlights.filter((flight) => {
       const timeStr =
@@ -21,8 +25,15 @@ export default function App() {
 
       if (!timeStr) return false;
 
-      const flightTime = new Date(timeStr);
-      return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
+      const utcFlightTime = new Date(timeStr);
+      const localFlightTime = new Date(
+        utcFlightTime.toLocaleString("en-US", { timeZone: "Australia/Sydney" })
+      );
+
+      return (
+        localFlightTime >= threeHoursBefore &&
+        localFlightTime <= threeHoursAfter
+      );
     });
   };
 
@@ -53,7 +64,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-black p-4 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4 text-center">AllFlights: {airport}</h1>
+      <h1 className="text-3xl font-bold mb-2 text-center">AllFlights: {airport}</h1>
+      <p className="text-center text-sm text-gray-500 mb-6">
+        Showing flights scheduled ±3 hours from current time (Sydney)
+      </p>
 
       <div className="flex justify-center gap-4 mb-6">
         <button
