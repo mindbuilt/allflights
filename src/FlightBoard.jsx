@@ -1,10 +1,6 @@
 import React from "react";
 
-export default function FlightBoard({ flights = [], type }) {
-  if (!flights.length) {
-    return <div className="text-center p-4 text-gray-600">No {type} data available.</div>;
-  }
-
+export default function FlightBoard({ flights = [], type, loading, error }) {
   const getCity = (flight) =>
     type === "arrivals"
       ? flight.origin?.city || flight.origin?.code_iata || "—"
@@ -20,10 +16,22 @@ export default function FlightBoard({ flights = [], type }) {
       ? flight.actual_in?.substring(11, 16) || "—"
       : flight.actual_out?.substring(11, 16) || "—";
 
+  if (loading) {
+    return <div className="text-center p-4 text-gray-600">Loading flights...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center p-4 text-red-600">Error loading flight data.</div>;
+  }
+
+  if (!flights.length) {
+    return <div className="text-center p-4 text-gray-600">No {type} data available.</div>;
+  }
+
   return (
     <div className="overflow-x-auto mt-4">
-      <table className="min-w-full table-auto border-collapse border border-gray-200">
-        <thead className="bg-gray-100">
+      <table className="min-w-full border-separate border-spacing-y-1 text-sm md:text-base font-mono">
+        <thead className="bg-black text-white uppercase text-xs tracking-widest">
           <tr>
             <th className="px-4 py-2 text-left">Flight</th>
             <th className="px-4 py-2 text-left">{type === "arrivals" ? "From" : "To"}</th>
@@ -33,7 +41,7 @@ export default function FlightBoard({ flights = [], type }) {
         </thead>
         <tbody>
           {flights.map((flight) => (
-            <tr key={flight.fa_flight_id || flight.ident} className="border-t border-gray-200">
+            <tr key={flight.fa_flight_id || flight.ident} className="bg-white even:bg-gray-100">
               <td className="px-4 py-2">{flight.ident}</td>
               <td className="px-4 py-2">{getCity(flight)}</td>
               <td className="px-4 py-2">{getScheduledTime(flight)}</td>
