@@ -1,36 +1,29 @@
-const flights = [
-  {
-    flight: "QF123",
-    airline: "Qantas",
-    from: "SYD",
-    to: "MEL",
-    time: "08:30",
-    status: "On Time",
-  },
-  {
-    flight: "VA456",
-    airline: "Virgin",
-    from: "MEL",
-    to: "BNE",
-    time: "09:15",
-    status: "Delayed",
-  },
-  {
-    flight: "JQ789",
-    airline: "Jetstar",
-    from: "BNE",
-    to: "CNS",
-    time: "10:00",
-    status: "Boarding",
-  },
-  {
-    flight: "NZ321",
-    airline: "Air NZ",
-    from: "SYD",
-    to: "AKL",
-    time: "11:20",
-    status: "Departed",
-  },
-];
+export default async function handler(req, res) {
+  try {
+    const response = await fetch('https://aeroapi.flightaware.com/aeroapi/flights', {
+      headers: {
+        'x-apikey': process.env.AEROAPI_KEY,
+        'Accept': 'application/json',
+      },
+    });
 
-export default flights;
+    const text = await response.text();
+    console.log("API raw response:", text);
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: 'API call failed',
+        details: text
+      });
+    }
+
+    const data = JSON.parse(text);
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error("Function error:", err);
+    return res.status(500).json({
+      error: "Function crashed",
+      message: err.message
+    });
+  }
+}
