@@ -2,18 +2,18 @@ export default async function handler(req, res) {
   const { airport = "YSSY", type = "all" } = req.query;
 
   const types = {
-    departures: "departure",
-    arrivals: "arrival",
+    departures: "departures",
+    arrivals: "arrivals",
   };
 
   const urlBase = "https://aeroapi.flightaware.com/aeroapi/flights/airport";
-  const fetchType = type === "all" ? "departure" : types[type] || "departure";
+  const fetchType = type === "all" ? "departures" : types[type] || "departures";
 
   const query = new URLSearchParams({
     airport_code: airport,
-    type: fetchType,
+    type: fetchType, // ✅ must be "departures" or "arrivals"
     howMany: "20",
-    offset_number: "0", // ✅ fixed param name
+    offset_number: "0",
   });
 
   try {
