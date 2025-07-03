@@ -1,11 +1,11 @@
-import FlightBoard from './FlightBoard';
+import FlightBoard from "./FlightBoard"; // Adjust path if needed
 
 function App() {
   return (
-    <main className="min-h-screen bg-black text-white font-mono p-6">
-      <h1 className="text-3xl font-bold text-yellow-400 mb-4">All Flights</h1>
+    <div>
+      <h1 className="text-white text-2xl font-bold p-4">AllFlights</h1>
       <FlightBoard />
-    </main>
+    </div>
   );
 }
 

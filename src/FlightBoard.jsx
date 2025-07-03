@@ -1,34 +1,54 @@
-import flights from "./flights";
+import { useEffect, useState } from "react";
 
-function FlightBoard() {
+export default function FlightBoard() {
+  const [flights, setFlights] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/flights")
+      .then((res) => res.json())
+      .then((data) => {
+        setFlights(data.flights || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="p-4 text-white">Loading flights...</div>;
+
+  if (flights.length === 0) return <div className="p-4 text-white">No flights found.</div>;
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full table-fixed text-yellow-400 text-left">
-        <thead>
-          <tr className="uppercase text-sm border-b border-yellow-600">
-            <th className="w-1/6 py-2">Flight</th>
-            <th className="w-1/6 py-2">Airline</th>
-            <th className="w-1/6 py-2">From</th>
-            <th className="w-1/6 py-2">To</th>
-            <th className="w-1/6 py-2">Time</th>
-            <th className="w-1/6 py-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {flights.map((flight, index) => (
-            <tr key={index} className="border-b border-yellow-800">
-              <td className="py-2">{flight.flight}</td>
-              <td className="py-2">{flight.airline}</td>
-              <td className="py-2">{flight.from}</td>
-              <td className="py-2">{flight.to}</td>
-              <td className="py-2">{flight.time}</td>
-              <td className="py-2">{flight.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {flights.map((flight, i) => (
+        <div
+          key={i}
+          className="bg-black text-green-500 p-4 rounded-lg shadow-md font-mono border border-green-700"
+        >
+          <div className="text-lg font-bold mb-1">✈️ {flight.ident}</div>
+          <div>
+            <strong>From:</strong>{" "}
+            {flight.origin?.code_icao || flight.origin?.code || "?"} — {flight.origin?.city || "Unknown"}
+          </div>
+          <div>
+            <strong>To:</strong>{" "}
+            {flight.destination?.code_icao || "?"} — {flight.destination?.city || "Unknown"}
+          </div>
+          <div>
+            <strong>Aircraft:</strong> {flight.aircraft_type || "N/A"}
+          </div>
+          <div>
+            <strong>Tail:</strong> {flight.registration || "N/A"}
+          </div>
+          <div className="text-sm opacity-50 mt-1">
+            Off: {flight.actual_off?.slice(0, 16).replace("T", " ")}<br />
+            On: {flight.actual_on?.slice(0, 16).replace("T", " ")}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
-
-export default FlightBoard;
