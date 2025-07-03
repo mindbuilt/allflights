@@ -1,7 +1,9 @@
 import React from "react";
 
 export default function FlightBoard({ flights = [], type }) {
-  if (!flights.length) return <div className="text-center p-4">No {type} data available.</div>;
+  if (!flights.length) {
+    return <div className="text-center p-4 text-gray-600">No {type} data available.</div>;
+  }
 
   return (
     <div className="overflow-x-auto mt-4">
@@ -16,18 +18,22 @@ export default function FlightBoard({ flights = [], type }) {
         </thead>
         <tbody>
           {flights.map((flight) => (
-            <tr key={flight.fa_flight_id} className="border-t border-gray-200">
+            <tr key={flight.fa_flight_id || flight.ident} className="border-t border-gray-200">
               <td className="px-4 py-2">{flight.ident}</td>
               <td className="px-4 py-2">
                 {type === "arrivals"
-                  ? flight.origin?.code_iata || flight.origin?.code || "N/A"
-                  : flight.destination?.code_iata || flight.destination?.code || "N/A"}
+                  ? flight.origin?.code_iata || "—"
+                  : flight.destination?.code_iata || "—"}
               </td>
               <td className="px-4 py-2">
-                {flight.scheduled_in || flight.scheduled_out || "—"}
+                {type === "arrivals"
+                  ? flight.scheduled_in?.substring(11, 16) || "—"
+                  : flight.scheduled_out?.substring(11, 16) || "—"}
               </td>
               <td className="px-4 py-2">
-                {flight.actual_in || flight.actual_out || "—"}
+                {type === "arrivals"
+                  ? flight.actual_in?.substring(11, 16) || "—"
+                  : flight.actual_out?.substring(11, 16) || "—"}
               </td>
             </tr>
           ))}
