@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing 'airport' or 'type' query parameter" });
   }
 
-  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport/${airport}/${type}?max_pages=1`;
+  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport?airport_code=${airport}&type=${type}`;
 
   try {
     const response = await fetch(url, {
@@ -14,14 +14,14 @@ export default async function handler(req, res) {
       },
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      return res.status(response.status).json({ error: "API call failed", details: data });
+      const error = await response.json();
+      return res.status(response.status).json({ error: "API call failed", details: error });
     }
 
+    const data = await response.json();
     res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error", details: error.message });
+  } catch (err) {
+    res.status(500).json({ error: "Unexpected error", details: err.message });
   }
 }
