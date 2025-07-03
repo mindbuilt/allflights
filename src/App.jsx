@@ -2,26 +2,33 @@ import React, { useEffect, useState } from "react";
 import FlightBoard from "./FlightBoard";
 
 export default function App() {
-  const [viewType, setViewType] = useState("arrivals"); // or "departures"
+  const [viewType, setViewType] = useState("arrivals");
   const [flights, setFlights] = useState([]);
-  const airport = "YSSY"; // hardcoded for now
+  const [loading, setLoading] = useState(true); // 👈 NEW
+  const [error, setError] = useState(false);    // 👈 NEW
+  const airport = "YSSY";
 
   const fetchFlights = async () => {
+    setLoading(true);
+    setError(false);
     try {
       const response = await fetch(`/api/flights?airport=${airport}&type=${viewType}`);
       const data = await response.json();
       console.log("API raw response:", data);
-
       const flightData = data.arrivals || data.departures || [];
       setFlights(flightData);
-    } catch (error) {
-      console.error("Error fetching flights:", error);
+    } catch (err) {
+      console.error("Error fetching flights:", err);
+      setError(true);
       setFlights([]);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchFlights();
+    const interval = setInterval(fetchFlights, 60000); // 👈 auto-refresh
+    return () => clearInterval(interval);
   }, [viewType]);
 
   return (
@@ -47,7 +54,8 @@ export default function App() {
         </button>
       </div>
 
-      <FlightBoard flights={flights} type={viewType} />
+      {/* 👇 pass new props to FlightBoard */}
+      <FlightBoard flights={flights} type={viewType} loading={loading} error={error} />
     </div>
   );
 }
