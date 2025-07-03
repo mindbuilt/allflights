@@ -18,16 +18,19 @@ export default function App() {
   return rawFlights.filter((flight) => {
     const timeStr =
       viewType === "arrivals"
-        ? flight.estimated_in || flight.scheduled_in
+        ? flight.estimated_on || flight.scheduled_on
         : flight.estimated_out || flight.scheduled_out;
 
     if (!timeStr) return false;
 
     const flightTime = DateTime.fromISO(timeStr).setZone("Australia/Sydney");
 
-    return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
+    return (
+      flightTime >= threeHoursBefore && flightTime <= threeHoursAfter
+    );
   });
 };
+
 
 
   const fetchFlights = async () => {
