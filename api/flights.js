@@ -12,8 +12,8 @@ export default async function handler(req, res) {
   const query = new URLSearchParams({
     airport_code: airport,
     type: fetchType,
-    howMany: "20", // adjust if you want more/less
-    offset: "0",
+    howMany: "20",
+    offset_number: "0", // ✅ fixed param name
   });
 
   try {
