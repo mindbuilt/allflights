@@ -5,7 +5,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing 'airport' or 'type' query parameter" });
   }
 
-  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport?airport_code=${airport}&type=${type}`;
+  if (type !== 'arrivals' && type !== 'departures') {
+    return res.status(400).json({ error: "Invalid 'type' parameter. Must be 'arrivals' or 'departures'." });
+  }
+
+  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport/${type}?airport_code=${airport}`;
 
   try {
     const response = await fetch(url, {
