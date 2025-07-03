@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   try {
     const response = await fetch(
-      'https://aeroapi.flightaware.com/aeroapi/flights/QF400',
+      'https://aeroapi.flightaware.com/aeroapi/flights/search/advanced?origin=YSSY',
       {
         headers: {
           'x-apikey': process.env.AEROAPI_KEY,
