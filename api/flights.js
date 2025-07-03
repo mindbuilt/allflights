@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     ? type.toLowerCase()
     : "departures";
 
-  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport?airport_code=${airport}&type=${selectedType}&howMany=20`;
+  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport/${selectedType}?airport_code=${airport}&howMany=20`;
 
   console.log("🔍 FETCHING FROM:", url);
 
