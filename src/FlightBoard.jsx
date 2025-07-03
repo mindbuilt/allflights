@@ -11,10 +11,29 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
       ? flight.scheduled_in?.substring(11, 16) || "—"
       : flight.scheduled_out?.substring(11, 16) || "—";
 
+  const getEstimatedTime = (flight) =>
+    type === "arrivals"
+      ? flight.estimated_in?.substring(11, 16) || "—"
+      : flight.estimated_out?.substring(11, 16) || "—";
+
   const getActualTime = (flight) =>
     type === "arrivals"
       ? flight.actual_in?.substring(11, 16) || "—"
       : flight.actual_out?.substring(11, 16) || "—";
+
+  const getTerminal = (flight) =>
+    type === "arrivals"
+      ? flight.terminal_destination || "—"
+      : flight.terminal_origin || "—";
+
+  const getGate = (flight) =>
+    type === "arrivals"
+      ? flight.gate_destination || "—"
+      : flight.gate_origin || "—";
+
+  const getStatus = (flight) => flight.status || "—";
+
+  const getAirline = (flight) => flight.operator_iata || flight.operator || "—";
 
   if (loading) {
     return <div className="text-center p-4 text-gray-600">Loading flights...</div>;
@@ -36,7 +55,12 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
             <th className="px-4 py-2 text-left">Flight</th>
             <th className="px-4 py-2 text-left">{type === "arrivals" ? "From" : "To"}</th>
             <th className="px-4 py-2 text-left">Scheduled</th>
+            <th className="px-4 py-2 text-left">Estimated</th>
             <th className="px-4 py-2 text-left">Actual</th>
+            <th className="px-4 py-2 text-left">Terminal</th>
+            <th className="px-4 py-2 text-left">Gate</th>
+            <th className="px-4 py-2 text-left">Status</th>
+            <th className="px-4 py-2 text-left">Airline</th>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +69,12 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
               <td className="px-4 py-2">{flight.ident}</td>
               <td className="px-4 py-2">{getCity(flight)}</td>
               <td className="px-4 py-2">{getScheduledTime(flight)}</td>
+              <td className="px-4 py-2">{getEstimatedTime(flight)}</td>
               <td className="px-4 py-2">{getActualTime(flight)}</td>
+              <td className="px-4 py-2">{getTerminal(flight)}</td>
+              <td className="px-4 py-2">{getGate(flight)}</td>
+              <td className="px-4 py-2">{getStatus(flight)}</td>
+              <td className="px-4 py-2">{getAirline(flight)}</td>
             </tr>
           ))}
         </tbody>
