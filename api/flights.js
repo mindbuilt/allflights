@@ -6,9 +6,9 @@ export default async function handler(req, res) {
 
   const query = new URLSearchParams({
     airport_code: airport,
-    type: selectedType, // ✅ safe value
+    type: selectedType, // ✅ must be "departures" or "arrivals"
     howMany: "20",
-    offset: "0",
+    offset_number: "0", // ✅ THIS is the correct param
   });
 
   try {
