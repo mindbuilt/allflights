@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FlightBoard from "./FlightBoard";
 import { DateTime } from "luxon";
+import SydneyClock from "./SydneyClock";
 
 
 export default function App() {
@@ -17,9 +18,9 @@ export default function App() {
 
   return rawFlights.filter((flight) => {
     const timeStr =
-      viewType === "arrivals"
-        ? flight.estimated_on || flight.scheduled_on
-        : flight.estimated_out || flight.scheduled_out;
+  viewType === "arrivals"
+    ? flight.actual_in || flight.estimated_in || flight.scheduled_in
+    : flight.actual_out || flight.estimated_out || flight.scheduled_out;
 
  if (!timeStr) return false;
 
@@ -72,7 +73,8 @@ return (
 
   return (
     <div className="min-h-screen bg-white text-black p-4 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2 text-center">AllFlights: {airport}</h1>
+<h1 className="text-3xl font-bold mb-1 text-center">AllFlights: {airport}</h1>
+<SydneyClock />
       <p className="text-center text-sm text-gray-500 mb-6">
         Showing flights scheduled ±3 hours from current time (Sydney)
       </p>
