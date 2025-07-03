@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FlightBoard from "./FlightBoard";
+import { DateTime } from "luxon";
+
 
 export default function App() {
   const [viewType, setViewType] = useState("arrivals");
@@ -9,33 +11,24 @@ export default function App() {
   const airport = "YSSY";
 
   const filterFlights = (rawFlights) => {
-    const now = new Date();
-    const sydneyNow = new Date(
-      now.toLocaleString("en-US", { timeZone: "Australia/Sydney" })
-    );
+  const nowSydney = DateTime.now().setZone("Australia/Sydney");
+  const threeHoursBefore = nowSydney.minus({ hours: 3 });
+  const threeHoursAfter = nowSydney.plus({ hours: 3 });
 
-    const threeHoursBefore = new Date(sydneyNow.getTime() - 3 * 60 * 60 * 1000);
-    const threeHoursAfter = new Date(sydneyNow.getTime() + 3 * 60 * 60 * 1000);
+  return rawFlights.filter((flight) => {
+    const timeStr =
+      viewType === "arrivals"
+        ? flight.estimated_in || flight.scheduled_in
+        : flight.estimated_out || flight.scheduled_out;
 
-    return rawFlights.filter((flight) => {
-      const timeStr =
-        viewType === "arrivals"
-          ? flight.estimated_in || flight.scheduled_in
-          : flight.estimated_out || flight.scheduled_out;
+    if (!timeStr) return false;
 
-      if (!timeStr) return false;
+    const flightTime = DateTime.fromISO(timeStr).setZone("Australia/Sydney");
 
-      const utcFlightTime = new Date(timeStr);
-      const localFlightTime = new Date(
-        utcFlightTime.toLocaleString("en-US", { timeZone: "Australia/Sydney" })
-      );
+    return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
+  });
+};
 
-      return (
-        localFlightTime >= threeHoursBefore &&
-        localFlightTime <= threeHoursAfter
-      );
-    });
-  };
 
   const fetchFlights = async () => {
     setLoading(true);
