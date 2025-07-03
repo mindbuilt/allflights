@@ -1,34 +1,32 @@
-// /src/FlightBoard.jsx
+// /src/components/FlightBoard.jsx
+
+import React from "react";
 
 export default function FlightBoard({ flights, type }) {
-  if (!flights || flights.length === 0) {
-    return <p className="text-center text-gray-400">No flight data available.</p>;
-  }
+  if (!flights.length) return <div className="text-center p-4">No {type} data available.</div>;
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-separate border-spacing-y-2">
-        <thead>
-          <tr className="bg-gray-700 text-sm uppercase text-left">
-            <th className="px-4 py-2">Flight</th>
-            <th className="px-4 py-2">{type === "arrivals" ? "Origin" : "Destination"}</th>
-            <th className="px-4 py-2">Time</th>
-            <th className="px-4 py-2">Aircraft</th>
+    <div className="overflow-x-auto mt-4">
+      <table className="min-w-full table-auto border-collapse border border-gray-200">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2 text-left">Flight</th>
+            <th className="px-4 py-2 text-left">{type === "arrivals" ? "From" : "To"}</th>
+            <th className="px-4 py-2 text-left">Scheduled</th>
+            <th className="px-4 py-2 text-left">Actual</th>
           </tr>
         </thead>
         <tbody>
           {flights.map((flight) => (
-            <tr key={flight.fa_flight_id} className="bg-gray-800 hover:bg-gray-700 text-sm">
-              <td className="px-4 py-2 font-bold">{flight.ident || "—"}</td>
+            <tr key={flight.fa_flight_id} className="border-t border-gray-200">
+              <td className="px-4 py-2">{flight.ident}</td>
               <td className="px-4 py-2">
-                {(type === "arrivals" ? flight.origin?.city : flight.destination?.city) || "—"}
+                {type === "arrivals"
+                  ? flight.origin?.city || flight.origin?.code
+                  : flight.destination?.city || flight.destination?.code || "N/A"}
               </td>
-              <td className="px-4 py-2">
-                {(type === "arrivals"
-                  ? flight.actual_on || flight.predicted_on
-                  : flight.actual_off || flight.predicted_off) || "—"}
-              </td>
-              <td className="px-4 py-2">{flight.aircraft_type || "—"}</td>
+              <td className="px-4 py-2">{flight.scheduled_on || flight.scheduled_off || "—"}</td>
+              <td className="px-4 py-2">{flight.actual_on || flight.actual_off || "—"}</td>
             </tr>
           ))}
         </tbody>
