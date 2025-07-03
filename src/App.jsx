@@ -4,9 +4,27 @@ import FlightBoard from "./FlightBoard";
 export default function App() {
   const [viewType, setViewType] = useState("arrivals");
   const [flights, setFlights] = useState([]);
-  const [loading, setLoading] = useState(true); // 👈 NEW
-  const [error, setError] = useState(false);    // 👈 NEW
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const airport = "YSSY";
+
+  const filterFlights = (rawFlights) => {
+    const now = new Date();
+    const threeHoursBefore = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+    const threeHoursAfter = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+
+    return rawFlights.filter((flight) => {
+      const timeStr =
+        viewType === "arrivals"
+          ? flight.estimated_in || flight.scheduled_in
+          : flight.estimated_out || flight.scheduled_out;
+
+      if (!timeStr) return false;
+
+      const flightTime = new Date(timeStr);
+      return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
+    });
+  };
 
   const fetchFlights = async () => {
     setLoading(true);
@@ -15,8 +33,10 @@ export default function App() {
       const response = await fetch(`/api/flights?airport=${airport}&type=${viewType}`);
       const data = await response.json();
       console.log("API raw response:", data);
-      const flightData = data.arrivals || data.departures || [];
-      setFlights(flightData);
+
+      const raw = data.arrivals || data.departures || [];
+      const filtered = filterFlights(raw);
+      setFlights(filtered);
     } catch (err) {
       console.error("Error fetching flights:", err);
       setError(true);
@@ -27,7 +47,7 @@ export default function App() {
 
   useEffect(() => {
     fetchFlights();
-    const interval = setInterval(fetchFlights, 60000); // 👈 auto-refresh
+    const interval = setInterval(fetchFlights, 60000);
     return () => clearInterval(interval);
   }, [viewType]);
 
@@ -54,7 +74,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* 👇 pass new props to FlightBoard */}
       <FlightBoard flights={flights} type={viewType} loading={loading} error={error} />
     </div>
   );
