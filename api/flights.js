@@ -1,11 +1,14 @@
 export default async function handler(req, res) {
   try {
-    const response = await fetch('https://aeroapi.flightaware.com/aeroapi/flights', {
-      headers: {
-        'x-apikey': process.env.AEROAPI_KEY,
-        'Accept': 'application/json',
-      },
-    });
+    const response = await fetch(
+      'https://aeroapi.flightaware.com/aeroapi/flights/QF400',
+      {
+        headers: {
+          'x-apikey': process.env.AEROAPI_KEY,
+          'Accept': 'application/json',
+        },
+      }
+    );
 
     const text = await response.text();
     console.log("API raw response:", text);
