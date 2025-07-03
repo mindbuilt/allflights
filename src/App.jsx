@@ -1,7 +1,7 @@
 // /src/App.jsx
 
 import React, { useEffect, useState } from "react";
-import FlightBoard from "./components/FlightBoard";
+import FlightBoard from "./FlightBoard";
 
 function App() {
   const [flightType, setFlightType] = useState("arrivals"); // or "departures"
