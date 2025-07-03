@@ -1,48 +1,53 @@
-// /src/App.jsx
-
 import React, { useEffect, useState } from "react";
 import FlightBoard from "./FlightBoard";
 
-function App() {
-  const [flightType, setFlightType] = useState("arrivals"); // or "departures"
+export default function App() {
+  const [viewType, setViewType] = useState("arrivals"); // or "departures"
   const [flights, setFlights] = useState([]);
-  const airport = "YSSY"; // Sydney for now
+  const airport = "YSSY"; // hardcoded for now
+
+  const fetchFlights = async () => {
+    try {
+      const response = await fetch(`/api/flights?airport=${airport}&type=${viewType}`);
+      const data = await response.json();
+      console.log("API raw response:", data);
+
+      const flightData = data.arrivals || data.departures || [];
+      setFlights(flightData);
+    } catch (error) {
+      console.error("Error fetching flights:", error);
+      setFlights([]);
+    }
+  };
 
   useEffect(() => {
-    const fetchFlights = async () => {
-      try {
-        const res = await fetch(`/api/flights?airport=${airport}&type=${flightType}`);
-        const data = await res.json();
-        setFlights(data.flights || []);
-      } catch (error) {
-        console.error("Failed to fetch flights:", error);
-      }
-    };
-
     fetchFlights();
-  }, [flightType]);
+  }, [viewType]);
 
   return (
-    <div className="p-6 font-sans">
-      <h1 className="text-2xl font-bold text-center">AllFlights – {airport}</h1>
-      <div className="flex justify-center mt-4">
+    <div className="min-h-screen bg-white text-black p-4 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4 text-center">AllFlights: {airport}</h1>
+
+      <div className="flex justify-center gap-4 mb-6">
         <button
-          onClick={() => setFlightType("arrivals")}
-          className={`px-4 py-2 rounded-l ${flightType === "arrivals" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+          onClick={() => setViewType("arrivals")}
+          className={`px-4 py-2 rounded ${
+            viewType === "arrivals" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
         >
           Arrivals
         </button>
         <button
-          onClick={() => setFlightType("departures")}
-          className={`px-4 py-2 rounded-r ${flightType === "departures" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+          onClick={() => setViewType("departures")}
+          className={`px-4 py-2 rounded ${
+            viewType === "departures" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
         >
           Departures
         </button>
       </div>
 
-      <FlightBoard flights={flights} type={flightType} />
+      <FlightBoard flights={flights} type={viewType} />
     </div>
   );
 }
-
-export default App;
