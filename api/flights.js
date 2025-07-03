@@ -1,13 +1,14 @@
 export default async function handler(req, res) {
   const { airport = "YSSY", type = "departures" } = req.query;
 
-  // ✅ Ensure lowercase and valid values
   const validTypes = ["departures", "arrivals"];
-  const selectedType = validTypes.includes(type.toLowerCase()) ? type.toLowerCase() : "departures";
+  const selectedType = validTypes.includes(type.toLowerCase())
+    ? type.toLowerCase()
+    : "departures";
 
-  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport?airport_code=${airport}&type=${selectedType}&howMany=20&offset=0`;
+  const url = `https://aeroapi.flightaware.com/aeroapi/flights/airport?airport_code=${airport}&type=${selectedType}&howMany=20`;
 
-  console.log("🔍 FETCHING FROM:", url); // ✅ Will show exact URL in logs
+  console.log("🔍 FETCHING FROM:", url);
 
   try {
     const response = await fetch(url, {
