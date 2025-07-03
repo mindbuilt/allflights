@@ -31,13 +31,12 @@ export default function FlightBoard() {
     });
   };
 
-  const displayLocation = (airport) => {
-    if (!airport) return "Unknown";
-    return (
-      (airport.code_iata || airport.code_icao || airport.code || "?") +
-      " — " +
-      (airport.city || "Unknown")
-    );
+const displayLocation = (airport) => {
+  if (!airport) return "–";
+  const code = airport.code_iata || airport.code_icao;
+  const city = airport.city || "Unknown";
+  return code ? `${code} — ${city}` : city;
+
   };
 
   return (
@@ -83,12 +82,24 @@ export default function FlightBoard() {
               className="bg-black text-green-500 p-4 rounded-lg shadow-md font-mono border border-green-700"
             >
               <div className="text-lg font-bold mb-1">✈️ {flight.ident}</div>
-              <div>
-                <strong>From:</strong> {displayLocation(flight.origin)}
-              </div>
-              <div>
-                <strong>To:</strong> {displayLocation(flight.destination)}
-              </div>
+             {type === "arrivals" ? (
+  <div>
+    <strong>From:</strong> {displayLocation(flight.origin)}
+  </div>
+) : type === "departures" ? (
+  <div>
+    <strong>To:</strong> {displayLocation(flight.destination)}
+  </div>
+) : (
+  <>
+    <div>
+      <strong>From:</strong> {displayLocation(flight.origin)}
+    </div>
+    <div>
+      <strong>To:</strong> {displayLocation(flight.destination)}
+    </div>
+  </>
+)}
               <div>
                 <strong>Aircraft:</strong> {flight.aircraft_type || "N/A"}
               </div>
