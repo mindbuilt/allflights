@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DateTime } from "luxon";
-import FlipNumbers from "react-flip-numbers";
 
 export default function FlightBoard({ flights = [], type, loading, error }) {
   const formatTime = (isoString) => {
@@ -107,7 +106,22 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
 }
 
 function SplitFlapCell({ children }) {
+  const [FlipNumbers, setFlipNumbers] = useState(null);
+
+  useEffect(() => {
+    import("react-flip-numbers").then((mod) => setFlipNumbers(() => mod.default));
+  }, []);
+
   const text = children?.toString() || "—";
+
+  if (!FlipNumbers) {
+    return (
+      <td className="px-2 py-1 text-center border border-yellow-700 bg-black rounded-sm shadow-inner tracking-wide">
+        {text}
+      </td>
+    );
+  }
+
   return (
     <td className="px-2 py-1 text-center border border-yellow-700 bg-black rounded-sm shadow-inner tracking-wide">
       <FlipNumbers
