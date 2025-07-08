@@ -1,27 +1,29 @@
+// allflights/api/flights.js
+
 export default async function handler(req, res) {
-  const { airport, type } = req.query;
-
-  if (!airport || !type) {
-    return res.status(400).json({ error: "Missing 'airport' or 'type' query parameter" });
-  }
-
-  const url = `https://aeroapi.flightaware.com/aeroapi/airports/${airport}/flights/${type}`;
+  const { type = "arrival" } = req.query;
 
   try {
-    const response = await fetch(url, {
-      headers: {
-        'x-apikey': process.env.AEROAPI_KEY,
-      },
-    });
+    const response = await fetch(
+      `https://aeroapi.flightaware.com/aeroapi/airports/YSSY/flights/scheduled?type=${type}&howMany=100`,
+      {
+        headers: {
+          "x-apikey": process.env.AEROAPI_KEY,
+        },
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json();
-      return res.status(response.status).json({ error: "API call failed", details: error });
+      const errorText = await response.text();
+      return res.status(response.status).json({ error: errorText });
     }
 
     const data = await response.json();
-    res.status(200).json(data);
+
+    // ✅ Return full flight objects — no trimming
+    res.status(200).json({ flights: data.flights });
   } catch (err) {
-    res.status(500).json({ error: "Unexpected error", details: err.message });
+    console.error("API fetch failed:", err);
+    res.status(500).json({ error: "Server error fetching flight data." });
   }
 }

@@ -51,10 +51,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchFlights();
-    const interval = setInterval(fetchFlights, 60000);
-    return () => clearInterval(interval);
-  }, [viewType]);
+  fetchFlights(viewType)
+    .then(setFlights)
+    .catch(console.error);
+}, [viewType]);
 
   return (
     <div className="min-h-screen bg-white text-black p-4 max-w-5xl mx-auto">
