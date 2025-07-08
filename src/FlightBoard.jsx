@@ -1,7 +1,7 @@
 import React from "react";
 import { DateTime } from "luxon";
 
-export default function FlightBoard({ flights = [], type, loading, error }) {
+export default function FlightBoard({ flights = [], type, loading, error, regionFilter = "all" }) {
   const formatTime = (isoString) => {
     return isoString
       ? DateTime.fromISO(isoString, { zone: "utc" })
@@ -9,6 +9,21 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
           .toFormat("HH:mm")
       : "—";
   };
+
+  const domesticAirports = ["SYD", "MEL", "BNE", "PER", "ADL", "CBR", "HBA", "CNS", "OOL", "DRW"];
+  const isDomesticFlight = (flight) => {
+    const code = type === "arrivals"
+      ? flight.origin?.code_iata
+      : flight.destination?.code_iata;
+    return domesticAirports.includes(code);
+  };
+
+  const filteredFlights = flights.filter((flight) => {
+    if (regionFilter === "all") return true;
+    return regionFilter === "domestic"
+      ? isDomesticFlight(flight)
+      : !isDomesticFlight(flight);
+  });
 
   const getCity = (flight) =>
     type === "arrivals"
@@ -61,10 +76,10 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
     );
   }
 
-  if (!flights.length) {
+  if (!filteredFlights.length) {
     return (
       <div className="text-center p-4 text-yellow-400 font-mono">
-        No {type} data available.
+        No {type} data available for selected region.
       </div>
     );
   }
@@ -86,7 +101,7 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
           </tr>
         </thead>
         <tbody>
-          {flights.map((flight) => (
+          {filteredFlights.map((flight) => (
             <tr key={flight.fa_flight_id || flight.ident} className="border-t border-yellow-700">
               <SplitFlapCell>{flight.ident}</SplitFlapCell>
               <SplitFlapCell>{getCity(flight)}</SplitFlapCell>
