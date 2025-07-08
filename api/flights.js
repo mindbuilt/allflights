@@ -3,12 +3,12 @@
 export default async function handler(req, res) {
   const { type = "arrival" } = req.query;
 
-  // Choose which filter to apply based on direction
-  const searchParam = type === "arrival" ? "destination" : "origin";
+  // Use 'query=' not 'origin=' or 'destination='
+  const queryParam = type === "arrival" ? "destination YSSY" : "origin YSSY";
 
   try {
     const response = await fetch(
-      `https://aeroapi.flightaware.com/aeroapi/flights/search?${searchParam}=YSSY&max_pages=1`,
+      `https://aeroapi.flightaware.com/aeroapi/flights/search?query=${encodeURIComponent(queryParam)}&max_pages=1`,
       {
         headers: {
           "x-apikey": process.env.AEROAPI_KEY,
@@ -24,9 +24,9 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Optional: filter for scheduled flights only
+    // Optional: filter out past flights
     const now = new Date();
-    const upcomingFlights = data.flights.filter(flight => {
+    const upcomingFlights = data.flights.filter((flight) => {
       const scheduledTime =
         type === "arrival" ? flight.scheduled_in : flight.scheduled_out;
       return scheduledTime && new Date(scheduledTime) > now;
