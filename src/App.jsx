@@ -12,23 +12,26 @@ export default function App() {
   const airport = "YSSY";
 
   const filterFlights = (rawFlights) => {
-    const nowSydney = DateTime.now().setZone("Australia/Sydney");
-    const threeHoursBefore = nowSydney.minus({ hours: 3 });
-    const threeHoursAfter = nowSydney.plus({ hours: 3 });
+  const nowSydney = DateTime.now().setZone("Australia/Sydney");
+  const threeHoursBefore = nowSydney.minus({ hours: 3 });
+  const threeHoursAfter = nowSydney.plus({ hours: 3 });
 
-    return rawFlights.filter((flight) => {
-      const timeStr =
-        viewType === "arrivals"
-          ? flight.actual_in || flight.estimated_in || flight.scheduled_in
-          : flight.actual_out || flight.estimated_out || flight.scheduled_out;
+  return rawFlights.filter((flight) => {
+    const timeStr =
+      viewType === "arrivals"
+        ? flight.scheduled_in || flight.estimated_in || flight.actual_in
+        : flight.scheduled_out || flight.estimated_out || flight.actual_out;
 
-      if (!timeStr) return false;
+    if (!timeStr) {
+      console.warn("Skipped flight (no usable time):", flight.ident);
+      return false;
+    }
 
-      const flightTime = DateTime.fromISO(timeStr, { zone: "utc" }).setZone("Australia/Sydney");
+    const flightTime = DateTime.fromISO(timeStr, { zone: "utc" }).setZone("Australia/Sydney");
 
-      return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
-    });
-  };
+    return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
+  });
+};
 
   const fetchFlights = async () => {
     setLoading(true);
