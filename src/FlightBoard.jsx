@@ -1,34 +1,18 @@
 import React from "react";
 import { DateTime } from "luxon";
 
-export default function FlightBoard({ flights = [], type, loading, error, regionFilter = "all" }) {
-  const formatTime = (isoString) => {
-    return isoString
-      ? DateTime.fromISO(isoString, { zone: "utc" })
-          .setZone("Australia/Sydney")
-          .toFormat("HH:mm")
-      : "—";
-  };
-
-  const domesticAirports = ["SYD", "MEL", "BNE", "PER", "ADL", "CBR", "HBA", "CNS", "OOL", "DRW"];
-  const isDomesticFlight = (flight) => {
-    const code = type === "arrivals"
-      ? flight.origin?.code_iata
-      : flight.destination?.code_iata;
-    return domesticAirports.includes(code);
-  };
-
-  const filteredFlights = flights.filter((flight) => {
-    if (regionFilter === "all") return true;
-    return regionFilter === "domestic"
-      ? isDomesticFlight(flight)
-      : !isDomesticFlight(flight);
-  });
-
+export default function FlightBoard({ flights = [], type, loading, error }) {
   const getCity = (flight) =>
     type === "arrivals"
       ? flight.origin?.city || flight.origin?.code_iata || "—"
       : flight.destination?.city || flight.destination?.code_iata || "—";
+
+  const formatTime = (isoTime) =>
+    isoTime
+      ? DateTime.fromISO(isoTime, { zone: "utc" })
+          .setZone("Australia/Sydney")
+          .toFormat("HH:mm")
+      : "—";
 
   const getScheduledTime = (flight) =>
     type === "arrivals"
@@ -40,99 +24,77 @@ export default function FlightBoard({ flights = [], type, loading, error, region
       ? formatTime(flight.estimated_in)
       : formatTime(flight.estimated_out);
 
-  const getActualTime = (flight) =>
-    type === "arrivals"
-      ? formatTime(flight.actual_in)
-      : formatTime(flight.actual_out);
+  const getGate = (flight) =>
+    type === "arrivals" ? flight.gate_in : flight.gate_out;
 
   const getTerminal = (flight) =>
-    type === "arrivals"
-      ? flight.terminal_destination || "—"
-      : flight.terminal_origin || "—";
+    type === "arrivals" ? flight.terminal_in : flight.terminal_out;
 
-  const getGate = (flight) =>
-    type === "arrivals"
-      ? flight.gate_destination || "—"
-      : flight.gate_origin || "—";
+  const getStatusBadge = (flight) => {
+    if (flight.cancelled) return <span className="text-red-500">Cancelled</span>;
+    if (flight.diverted) return <span className="text-yellow-500">Diverted</span>;
+    return <span className="text-green-500">{flight.status || "—"}</span>;
+  };
 
-  const getStatus = (flight) => flight.status || "—";
-
-  const getAirline = (flight) =>
-    flight.operator_iata || flight.operator || "—";
-
-  if (loading) {
-    return (
-      <div className="text-center p-4 text-yellow-300 font-mono">
-        Loading flights...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center p-4 text-red-500 font-mono">
-        Error loading flight data.
-      </div>
-    );
-  }
-
-  if (!filteredFlights.length) {
-    return (
-      <div className="text-center p-4 text-yellow-400 font-mono">
-        No {type} data available for selected region.
-      </div>
-    );
-  }
+  const getAirlineLogo = (iata) => {
+    return iata
+      ? `https://content.airhex.com/content/logos/airlines_${iata}_200_200_s.png`
+      : null;
+  };
 
   return (
-    <div className="overflow-x-auto mt-4 bg-black text-yellow-300 font-mono rounded-md shadow-xl border border-yellow-600 p-2">
-      <table className="min-w-full text-sm md:text-base">
-        <thead className="uppercase text-yellow-500 text-xs tracking-widest">
-          <tr>
-            <SplitFlapHeader>Flight</SplitFlapHeader>
-            <SplitFlapHeader>{type === "arrivals" ? "From" : "To"}</SplitFlapHeader>
-            <SplitFlapHeader>Scheduled</SplitFlapHeader>
-            <SplitFlapHeader>Estimated</SplitFlapHeader>
-            <SplitFlapHeader>Actual</SplitFlapHeader>
-            <SplitFlapHeader>Terminal</SplitFlapHeader>
-            <SplitFlapHeader>Gate</SplitFlapHeader>
-            <SplitFlapHeader>Status</SplitFlapHeader>
-            <SplitFlapHeader>Airline</SplitFlapHeader>
+    <div className="bg-gray-900 text-white font-mono p-4">
+      {loading && <p>Loading flights…</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {!loading && flights.length === 0 && <p>No flights found.</p>}
+      <table className="w-full table-auto border-separate border-spacing-y-2">
+        <thead>
+          <tr className="text-left text-sm text-gray-400">
+            <th>✈️ Flight</th>
+            <th>From / To</th>
+            <th>Scheduled</th>
+            <th>Estimated</th>
+            <th>Status</th>
+            <th>Aircraft</th>
+            <th>Gate</th>
+            <th>Terminal</th>
           </tr>
         </thead>
         <tbody>
-          {filteredFlights.map((flight) => (
-            <tr key={flight.fa_flight_id || flight.ident} className="border-t border-yellow-700">
-              <SplitFlapCell>{flight.ident}</SplitFlapCell>
-              <SplitFlapCell>{getCity(flight)}</SplitFlapCell>
-              <SplitFlapCell>{getScheduledTime(flight)}</SplitFlapCell>
-              <SplitFlapCell>{getEstimatedTime(flight)}</SplitFlapCell>
-              <SplitFlapCell>{getActualTime(flight)}</SplitFlapCell>
-              <SplitFlapCell>{getTerminal(flight)}</SplitFlapCell>
-              <SplitFlapCell>{getGate(flight)}</SplitFlapCell>
-              <SplitFlapCell>{getStatus(flight)}</SplitFlapCell>
-              <SplitFlapCell>{getAirline(flight)}</SplitFlapCell>
-            </tr>
-          ))}
+          {flights.map((flight) => {
+            const logo = getAirlineLogo(flight.operator_iata);
+            const rowStyle = flight.cancelled
+              ? "opacity-40 line-through"
+              : flight.diverted
+              ? "bg-yellow-900"
+              : "";
+
+            return (
+              <tr key={flight.fa_flight_id} className={`text-sm ${rowStyle}`}>
+                <td className="flex items-center gap-2">
+                  {logo && (
+                    <img
+                      src={logo}
+                      alt={flight.operator_iata}
+                      width={20}
+                      className="inline-block"
+                    />
+                  )}
+                  {flight.operator_iata}
+                  {flight.flight_number}
+                </td>
+                <td>{getCity(flight)}</td>
+                <td>{getScheduledTime(flight)}</td>
+                <td>{getEstimatedTime(flight)}</td>
+                <td>{getStatusBadge(flight)}</td>
+                <td>{flight.aircraft_type || "—"} / {flight.registration || "—"}</td>
+                <td>{getGate(flight) || "—"}</td>
+                <td>{getTerminal(flight) || "—"}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
-  );
-}
-
-function SplitFlapCell({ children }) {
-  const text = children?.toString() || "—";
-  return (
-    <td className="px-2 py-1 text-center border border-yellow-700 bg-black rounded-sm shadow-inner tracking-wide">
-      {text}
-    </td>
-  );
-}
-
-function SplitFlapHeader({ children }) {
-  return (
-    <th className="px-2 py-2 text-left border-b border-yellow-500 bg-black">
-      {children}
-    </th>
   );
 }
