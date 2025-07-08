@@ -1,6 +1,16 @@
 import React from "react";
+import { DateTime } from "luxon";
+import FlipNumbers from "react-flip-numbers";
 
 export default function FlightBoard({ flights = [], type, loading, error }) {
+  const formatTime = (isoString) => {
+    return isoString
+      ? DateTime.fromISO(isoString, { zone: "utc" })
+          .setZone("Australia/Sydney")
+          .toFormat("HH:mm")
+      : "—";
+  };
+
   const getCity = (flight) =>
     type === "arrivals"
       ? flight.origin?.city || flight.origin?.code_iata || "—"
@@ -8,18 +18,18 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
 
   const getScheduledTime = (flight) =>
     type === "arrivals"
-      ? flight.scheduled_in?.substring(11, 16) || "—"
-      : flight.scheduled_out?.substring(11, 16) || "—";
+      ? formatTime(flight.scheduled_in)
+      : formatTime(flight.scheduled_out);
 
   const getEstimatedTime = (flight) =>
     type === "arrivals"
-      ? flight.estimated_in?.substring(11, 16) || "—"
-      : flight.estimated_out?.substring(11, 16) || "—";
+      ? formatTime(flight.estimated_in)
+      : formatTime(flight.estimated_out);
 
   const getActualTime = (flight) =>
     type === "arrivals"
-      ? flight.actual_in?.substring(11, 16) || "—"
-      : flight.actual_out?.substring(11, 16) || "—";
+      ? formatTime(flight.actual_in)
+      : formatTime(flight.actual_out);
 
   const getTerminal = (flight) =>
     type === "arrivals"
@@ -33,14 +43,23 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
 
   const getStatus = (flight) => flight.status || "—";
 
-  const getAirline = (flight) => flight.operator_iata || flight.operator || "—";
+  const getAirline = (flight) =>
+    flight.operator_iata || flight.operator || "—";
 
   if (loading) {
-    return <div className="text-center p-4 text-yellow-300 font-mono">Loading flights...</div>;
+    return (
+      <div className="text-center p-4 text-yellow-300 font-mono">
+        Loading flights...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center p-4 text-red-500 font-mono">Error loading flight data.</div>;
+    return (
+      <div className="text-center p-4 text-red-500 font-mono">
+        Error loading flight data.
+      </div>
+    );
   }
 
   if (!flights.length) {
@@ -86,8 +105,6 @@ export default function FlightBoard({ flights = [], type, loading, error }) {
     </div>
   );
 }
-
-import FlipNumbers from "react-flip-numbers";
 
 function SplitFlapCell({ children }) {
   const text = children?.toString() || "—";
