@@ -17,10 +17,10 @@ export default function App() {
   const threeHoursAfter = nowSydney.plus({ hours: 3 });
 
   return rawFlights.filter((flight) => {
-    const timeStr =
-      viewType === "arrivals"
-        ? flight.scheduled_in || flight.estimated_in || flight.actual_in
-        : flight.scheduled_out || flight.estimated_out || flight.actual_out;
+const timeStr =
+  viewType === "arrivals"
+    ? flight.actual_in || flight.estimated_in || flight.scheduled_in
+    : flight.actual_out || flight.estimated_out || flight.scheduled_out;
 
     if (!timeStr) {
       console.warn("Skipped flight (no usable time):", flight.ident);
