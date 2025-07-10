@@ -27,6 +27,30 @@ export default function App() {
       return false;
     }
 
+    const flightTime = DateTime.fromISO(timeStr, { zone: "utc" });
+
+    if (!flightTime.isValid) {
+      console.warn("Skipped flight (invalid time format):", flight.ident, timeStr);
+      return false;
+    }
+
+    const sydneyTime = flightTime.setZone("Australia/Sydney");
+
+    return sydneyTime >= threeHoursBefore && sydneyTime <= threeHoursAfter;
+  });
+};
+
+  return rawFlights.filter((flight) => {
+    const timeStr =
+      viewType === "arrivals"
+        ? flight.scheduled_in || flight.estimated_in || flight.actual_in
+        : flight.scheduled_out || flight.estimated_out || flight.actual_out;
+
+    if (!timeStr) {
+      console.warn("Skipped flight (no usable time):", flight.ident);
+      return false;
+    }
+
     const flightTime = DateTime.fromISO(timeStr, { zone: "utc" }).setZone("Australia/Sydney");
 
     return flightTime >= threeHoursBefore && flightTime <= threeHoursAfter;
